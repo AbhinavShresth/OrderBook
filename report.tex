@@ -1,0 +1,315 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{bytefield}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{microtype}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=blue!70!black
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Low Latency Trading Exchange Prototype}
+\lhead{Network Protocol Implementation Report}
+\cfoot{\thepage}
+
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10},
+    keywordstyle=\color{blue!80!black}\bfseries,
+    commentstyle=\color{green!50!black}\itshape,
+    stringstyle=\color{red!70!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    tabsize=2,
+    showstringspaces=false
+}
+
+\title{\textbf{Low Latency Trading Exchange Prototype}\\
+\large Network Protocol Architecture, UDP Datagram Engineering, and System Implementation Report}
+
+\author{
+\textbf{Manjot Singh} (24116048) \quad \textbf{Anjan Singla} (24114012)\\
+\textbf{Adityavardhan Singh} (24322005) \quad \textbf{Mayank Rana} (24115101)\\
+\textbf{Abhinav Shresth} (24115008)\\[0.5em]
+\textit{Department of Computer Science and Engineering}
+}
+\date{October 12, 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report presents the complete design, implementation, and empirical verification of a prototype for a \textbf{Low Latency Trading Exchange}, strictly adhering to the requirements set forth in the Software Requirements Specification (SRS). The system introduces an asymmetric dual-channel communication architecture: a reliable, HTTP/1.1-framed TCP control channel managed by a single-threaded non-blocking Central Dispatcher, decoupled from a high-throughput, unacknowledged UDP market data dissemination channel operated by independent worker threads. We detail the binary engineering of a compact 124-byte L2 market depth datagram encoded in network byte order (Big-Endian), equipped with microsecond-resolution timestamps and per-group 64-bit sequence counters for loss detection. In addition, we present the exact mathematical implementation of the Pro-Rata matching algorithm with FIFO arrival-time remainder resolution, a native Wireshark Lua dissector, pure-Python standard Libpcap capture capabilities, and an interactive packet inspection console. Empirical verification via automated test suites and end-to-end demonstrations confirms zero-copy buffer framing, strictly deterministic execution, and seamless packet observability matching Wireshark protocol dissections.
+\end{abstract}
+
+\vspace{1em}
+\noindent\textbf{Keywords:} Low-Latency Trading, UDP Market Feed, Binary Datagrams, Wireshark Protocol Dissection, Pro-Rata Matching, Non-Blocking I/O, Event Loop.
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+High-frequency and low-latency trading venues demand architectural segregation between order intake (which requires deterministic acknowledgments and transactional consistency) and market data dissemination (which prioritizes minimal distribution jitter and high throughput). Traditional monolithic exchange architectures suffer from severe serialization bottlenecks and context-switching overheads when broadcast distribution is coupled to the central order intake thread.
+
+To address these challenges as outlined in the project SRS, we have implemented a high-performance prototype featuring:
+\begin{enumerate}
+    \item \textbf{Asymmetric Dual-Channel Separation}: TCP is deployed exclusively for order lifecycle management (BID, ASK, CANCEL, SUBSCRIBE), while UDP is leveraged for real-time Level 2 (Top-3) market depth broadcasts directly from worker threads.
+    \item \textbf{124-Byte Binary Wire Protocol}: High-density, deterministic binary encoding of market updates eliminating JSON serialization overheads on the outbound broadcast fast path.
+    \item \textbf{Wireshark-Grade Network Observability}: Complete packet inspection facilities, including a terminal dissector detailing byte offsets and hex dumps, a custom Wireshark Lua plugin, and a standard Libpcap recorder.
+    \item \textbf{Decoupled Worker Processing \& Pro-Rata Matching}: Independent worker threads managing partitioned ticker groups without inter-worker locks, implementing exact Pro-Rata volume allocation with time-priority integer remainder distribution.
+\end{enumerate}
+
+\section{System Architecture Overview}
+
+Figure~\ref{fig:arch} illustrates the system architecture implemented in this prototype.
+
+\begin{figure}[h!]
+\centering
+\begin{verbatim}
++-----------------------------------------------------------------------------+
+|                                CLIENT LAYER                                 |
+|                                                                             |
+|   +-----------------------+                    +------------------------+   |
+|   |  ExchangeClient (TCP) |                    |  UDP Broadcast Listener|   |
+|   |  HTTP/1.1 Request Path|                    |  Loss / Jitter Tracker |   |
+|   +-----------------------+                    +------------------------+   |
++---------------|--------------------------------------------^----------------+
+    TCP Control |                                            | Direct UDP
+    (Port 8085) v                                            | Market Feed
++------------------------------------------------------------|----------------+
+|                          EXCHANGE SERVER ENGINE            |                |
+|                                                            |                |
+|   +----------------------------------------------------+   |                |
+|   |       Central Exchange Dispatcher (Single-Thread)  |   |                |
+|   |       - Non-blocking select() I/O Polling Loop     |   |                |
+|   |       - Content-Length Stream Framing Parser       |   |                |
+|   |       - Round-Robin Task / Response Multiplexing   |   |                |
+|   +----------------------------------------------------+   |                |
+|              | Queue Task               ^ Queue Response   |                |
+|              v                          |                  |                |
+|   +----------------------------------------------------+   |                |
+|   |             Decoupled Worker Instances             |   |                |
+|   |                                                    |   |                |
+|   |   [Worker 1: Group 1 (Tech: AAPL, GOOG, MSFT)]     |   |                |
+|   |    - In-Memory Price-Time Order Books              |   |                |
+|   |    - Pro-Rata Matching Engine                      |   |                |
+|   |    - Adaptive Yielding (T_timeout = EWMA + Delta)  |   |                |
+|   |    - Dedicated UDP Socket Thread ----------------------+                |
+|   |                                                    |                    |
+|   |   [Worker 2: Group 2 (Finance: JPM, GS, BAC)]      |                    |
+|   |   [Worker 3: Group 3 (Energy: XOM, CVX, SHEL)]     |                    |
+|   +----------------------------------------------------+                    |
++-----------------------------------------------------------------------------+
+\end{verbatim}
+\caption{Decoupled Dual-Channel Exchange Architecture.}
+\label{fig:arch}
+\end{figure}
+
+\subsection{Single-Threaded Dispatcher Event Loop (FR-1, FR-8)}
+The Central Exchange Dispatcher executes a single-threaded, non-blocking polling loop powered by \texttt{select()}. It handles incoming TCP connection handshakes and demultiplexes request frames from multiple connected clients. 
+
+Order tasks are routed into bounded, thread-safe input queues belonging to the designated worker thread based on the target ticker symbol. Resolved execution reports from worker output queues are multiplexed back to the client TCP sockets in a round-robin schedule, guaranteeing that neither network reads nor worker completions are starved.
+
+\subsection{Decoupled Worker Processing (FR-9, NFR-2)}
+Each worker maintains dedicated, independent order books for its assigned ticker partition:
+\begin{itemize}
+    \item \textbf{Group 1 (Tech)}: \texttt{AAPL}, \texttt{GOOG}, \texttt{MSFT} (UDP Port 9901)
+    \item \textbf{Group 2 (Finance)}: \texttt{JPM}, \texttt{GS}, \texttt{BAC} (UDP Port 9902)
+    \item \textbf{Group 3 (Energy)}: \texttt{XOM}, \texttt{CVX}, \texttt{SHEL} (UDP Port 9903)
+\end{itemize}
+Workers operate with zero inter-worker locking. Outbound market data generation is decoupled: computation threads yield access to the order book whenever the elapsed processing time exceeds an adaptive threshold:
+\begin{equation}
+T_{\text{timeout}} = \overline{T}_{\text{UDP}} + \Delta t_{\text{safety}}
+\end{equation}
+where $\overline{T}_{\text{UDP}}$ is the running Exponentially Weighted Moving Average (EWMA) of recent UDP transmission durations, and $\Delta t_{\text{safety}}$ is a configurable margin (5\,ms). The snapshot is extracted in under $5\,\mu\text{s}$ (NFR-1) and handed to the worker's network thread for direct UDP transmission.
+
+\section{Communication Protocol Specification}
+
+\subsection{UDP Market Data Feed Datagram Layout (SRS 4.4, Table 3, FR-10)}
+The market feed datagram is a strictly aligned 124-byte binary structure encoded in Network Byte Order (Big-Endian).
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lccccX}
+\toprule
+\textbf{Byte Range (Hex)} & \textbf{Offset (Dec)} & \textbf{Field Name} & \textbf{Type} & \textbf{Size} & \textbf{Description} \\
+\midrule
+\texttt{0x00 - 0x07} & 0 & \texttt{seq\_num} & \texttt{uint64\_t} & 8\,B & Monotonic sequence counter per group for drop detection. \\
+\texttt{0x08 - 0x0F} & 8 & \texttt{timestamp} & \texttt{uint64\_t} & 8\,B & Unix epoch timestamp in microseconds. \\
+\texttt{0x10 - 0x13} & 16 & \texttt{group\_id} & \texttt{uint32\_t} & 4\,B & Target ticker group identifier. \\
+\texttt{0x14 - 0x1B} & 20 & \texttt{ticker} & \texttt{char[8]} & 8\,B & ASCII ticker symbol (null-padded). \\
+\texttt{0x1C - 0x23} & 28 & \texttt{bid1\_price} & \texttt{uint64\_t} & 8\,B & Top Bid Level 1 Price. \\
+\texttt{0x24 - 0x2B} & 36 & \texttt{bid1\_vol} & \texttt{uint64\_t} & 8\,B & Top Bid Level 1 Aggregated Volume. \\
+\texttt{0x2C - 0x33} & 44 & \texttt{bid2\_price} & \texttt{uint64\_t} & 8\,B & Bid Level 2 Price. \\
+\texttt{0x34 - 0x3B} & 52 & \texttt{bid2\_vol} & \texttt{uint64\_t} & 8\,B & Bid Level 2 Aggregated Volume. \\
+\texttt{0x3C - 0x43} & 60 & \texttt{bid3\_price} & \texttt{uint64\_t} & 8\,B & Bid Level 3 Price. \\
+\texttt{0x44 - 0x4B} & 68 & \texttt{bid3\_vol} & \texttt{uint64\_t} & 8\,B & Bid Level 3 Aggregated Volume. \\
+\texttt{0x4C - 0x53} & 76 & \texttt{ask1\_price} & \texttt{uint64\_t} & 8\,B & Top Ask Level 1 Price. \\
+\texttt{0x54 - 0x5B} & 84 & \texttt{ask1\_vol} & \texttt{uint64\_t} & 8\,B & Top Ask Level 1 Aggregated Volume. \\
+\texttt{0x5C - 0x63} & 92 & \texttt{ask2\_price} & \texttt{uint64\_t} & 8\,B & Ask Level 2 Price. \\
+\texttt{0x64 - 0x6B} & 100 & \texttt{ask2\_vol} & \texttt{uint64\_t} & 8\,B & Ask Level 2 Aggregated Volume. \\
+\texttt{0x6C - 0x73} & 108 & \texttt{ask3\_price} & \texttt{uint64\_t} & 8\,B & Ask Level 3 Price. \\
+\texttt{0x74 - 0x7B} & 116 & \texttt{ask3\_vol} & \texttt{uint64\_t} & 8\,B & Ask Level 3 Aggregated Volume. \\
+\bottomrule
+\end{tabularx}
+\caption{Detailed Wire Format for L2 UDP Market Feed Datagram (124 Bytes Total).}
+\label{tab:datagram}
+\end{table}
+
+\subsection{TCP Transport Framing and Endpoints (SRS 4.1, 4.2, 4.3)}
+TCP traffic follows an HTTP/1.1 message structure where \texttt{Content-Length} dictates message boundaries over the streaming socket (FR-1):
+\begin{itemize}
+    \item \textbf{Submit Buy Limit (BID)}: \texttt{POST /order/bid} with body \texttt{\{"ticker":"AAPL","type":"LIMIT","max\_price":180,"volume":50\}}.
+    \item \textbf{Submit Sell Limit (ASK)}: \texttt{POST /order/ask} with body \texttt{\{"ticker":"AAPL","type":"LIMIT","min\_price":182,"volume":30\}}.
+    \item \textbf{Cancel Order}: \texttt{DELETE /order/cancel} carrying header \texttt{Order-ID: <id>} with empty body.
+    \item \textbf{Discovery (LIST FEED)}: \texttt{GET /feed/groups} returning all active ticker groups and symbols.
+    \item \textbf{Subscription}: \texttt{POST /feed/subscribe} with body \texttt{\{"groups":[1,2],"udp\_port":9876\}}.
+    \item \textbf{Unsubscription}: \texttt{POST /feed/unsubscribe} with body \texttt{\{"groups":[2]\}}.
+\end{itemize}
+
+\section{Pro-Rata Matching Engine (FR-3)}
+
+The matching engine enforces price priority across order tiers. When an incoming aggressive order crosses resting counterpart orders at a given price level, volume is allocated pro-rata according to each resting order's size relative to total resting depth:
+
+\begin{equation}
+\text{Vol}_i = \min\left(\text{Vol}_{\text{aggressive}}, \left\lfloor \text{Order Vol}_i \times \frac{\text{Vol}_{\text{aggressive}}}{\sum_j \text{Order Vol}_j} \right\rfloor\right)
+\end{equation}
+
+\subsection{Integer Rounding and Remainder Distribution}
+Because fractional share executions are prohibited, integer division truncates fractions via $\lfloor \cdot \rfloor$. Let the sum of base allocated shares be:
+\begin{equation}
+R = \text{Vol}_{\text{aggressive}} - \sum_i \text{Vol}_i
+\end{equation}
+Any positive remainder $R > 0$ is resolved deterministically by allocating 1 share iteratively to resting orders based on their \textbf{FIFO arrival timestamp} (time priority) at that price tier until $R = 0$.
+
+Any unfilled aggressive order volume is enqueued passively into the order book at its specified limit price.
+
+\section{Wireshark Dissection and Observability}
+
+To facilitate deep packet inspection and network verification, the prototype provides three complementary observability tools:
+
+\subsection{Real-Time Terminal Dissector}
+The client integrates a protocol dissector that renders incoming UDP datagrams in a format mirroring Wireshark's Packet Details and Packet Bytes panes. It displays:
+\begin{enumerate}
+    \item Frame and transport metadata (Source IP/port, Destination IP/port, capture length).
+    \item Header tree dissection with decoded values and sequence continuity status.
+    \item Top-3 Bid and Ask ladder with price levels and lots.
+    \item 16-byte aligned Hex Dump with ASCII sidebars.
+\end{enumerate}
+
+\subsection{Native Wireshark Lua Dissector (\texttt{wireshark/market\_feed.lua})}
+A custom Wireshark dissector written in Lua registers on UDP ports 9876, 9901, 9902, and 9903. When loaded into Wireshark, it automatically labels protocol frames as \texttt{MKT-FEED}, extracts all 16 fields, and organizes bids and asks into expandable subtrees.
+
+\subsection{Standard Libpcap Generation (\texttt{protocol/pcap\_writer.py})}
+The prototype includes a zero-dependency PCAP writer in Python. It wraps each 124-byte datagram with standard 14-byte Ethernet II, 20-byte IPv4, and 8-byte UDP headers with valid IP checksums. Captured traces (\texttt{market\_feed.pcap}) can be opened directly in Wireshark on any workstation without external packet-capture drivers.
+
+\section{Verification and Test Results}
+
+\subsection{Automated Test Suite}
+The test suite was executed via the standard test runner (\texttt{python -m unittest discover -s tests -v}). Table~\ref{tab:tests} summarizes the results.
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{llcX}
+\toprule
+\textbf{Test Module} & \textbf{Test Case} & \textbf{Status} & \textbf{Verification Target} \\
+\midrule
+\texttt{test\_datagram.py} & \texttt{test\_datagram\_size\_and\_roundtrip} & \textbf{PASS} & Validates exact 124-byte wire packing and lossless deserialization. \\
+\texttt{test\_datagram.py} & \texttt{test\_hex\_dump\_and\_dissection} & \textbf{PASS} & Verifies hex alignment and protocol tree string formatting. \\
+\texttt{test\_datagram.py} & \texttt{test\_loss\_detection\_in\_dissector} & \textbf{PASS} & Validates packet drop detection upon sequence gaps. \\
+\texttt{test\_datagram.py} & \texttt{test\_pcap\_writer} & \textbf{PASS} & Validates Libpcap 2.4 header integrity and packet framing. \\
+\texttt{test\_datagram.py} & \texttt{test\_http\_stream\_framing} & \textbf{PASS} & Verifies \texttt{Content-Length} delimited streaming TCP parsing. \\
+\texttt{test\_matching.py} & \texttt{test\_passive\_resting\_orders} & \textbf{PASS} & Confirms passive book insertion and Top-3 depth extraction. \\
+\texttt{test\_matching.py} & \texttt{test\_pro\_rata\_matching} & \textbf{PASS} & Validates Pro-Rata allocation and FIFO remainder distribution. \\
+\texttt{test\_matching.py} & \texttt{test\_order\_cancellation} & \textbf{PASS} & Validates 200 OK CANCELLED and 404 Not Found error paths. \\
+\texttt{test\_integration.py} & \texttt{test\_end\_to\_end\_flow} & \textbf{PASS} & Validates end-to-end multi-channel client/server flow. \\
+\bottomrule
+\end{tabularx}
+\caption{Automated Unit and Integration Test Results (100\% Pass Rate).}
+\label{tab:tests}
+\end{table}
+
+\subsection{Empirical Pro-Rata Matching Trace}
+During the automated verification run (\texttt{demo\_automated.py}), a resting book was constructed for \texttt{AAPL}:
+\begin{itemize}
+    \item Order 1001 (ASK): 100 shares @ \$180 (arrived at $t_1$)
+    \item Order 1002 (ASK): 300 shares @ \$180 (arrived at $t_2$)
+    \item Total Resting Liquidity: 400 shares @ \$180
+\end{itemize}
+An aggressive buy order (Order 1003) of 150 shares @ \$180 was submitted. Pro-Rata execution yielded:
+\begin{align*}
+\text{Base Share}_{\text{Order 1001}} &= \left\lfloor 100 \times \frac{150}{400} \right\rfloor = 37 \text{ shares} \\
+\text{Base Share}_{\text{Order 1002}} &= \left\lfloor 300 \times \frac{150}{400} \right\rfloor = 112 \text{ shares} \\
+\text{Remainder } R &= 150 - (37 + 112) = 1 \text{ share}
+\end{align*}
+The 1-share remainder was assigned to Order 1001 via FIFO time priority, resulting in:
+\begin{itemize}
+    \item \textbf{Trade \#501}: 38 lots @ \$180 matched with Order 1001 (Remaining: 62 shares).
+    \item \textbf{Trade \#502}: 112 lots @ \$180 matched with Order 1002 (Remaining: 188 shares).
+    \item Aggressive Order 1003: Status \texttt{FILLED}, Remaining volume = 0.
+\end{itemize}
+This matches theoretical Pro-Rata calculations with zero rounding error.
+
+\subsection{Empirical Dissection Output}
+Listing~\ref{lst:dissect} demonstrates the live output captured from Worker 1 during the automated demonstration.
+
+\begin{lstlisting}[language={},caption={Empirical Terminal Wireshark Packet Dissection Trace.},label={lst:dissect}]
+==================================================================================
+[WIRESHARK PACKET TRACE - FRAME #0074]
+  Capture Length : 124 bytes (Wire: 152 bytes with IP/UDP)
+  Transport      : UDP 127.0.0.1:9901 -> 127.0.0.1:9876
+  Protocol       : L2_MARKET_FEED (SRS 4.4 / FR-10)
+----------------------------------------------------------------------------------
+PROTOCOL TREE DISSECTION (Wireshark Details Pane):
+|-- [0x00-0x07] Sequence Number     : 36 [OK (Continuous)]
+|-- [0x08-0x0F] Timestamp (us)       : 1791828597076693 (2026-10-12 23:39:57.076693)
+|               Transit Latency     : 12 microseconds
+|-- [0x10-0x13] Ticker Group ID     : 1
+|-- [0x14-0x1B] Ticker Symbol       : "AAPL"
+|-- [0x1C-0x4B] Top-3 Bid Levels (BBO Ladder):
+|   |-- Level 1 (0x1c-0x2b): Price = EMPTY    | Volume = -
+|   |-- Level 2 (0x2c-0x3b): Price = EMPTY    | Volume = -
+|   |-- Level 3 (0x3c-0x4b): Price = EMPTY    | Volume = -
+\-- [0x4C-0x7B] Top-3 Ask Levels (BBO Ladder):
+    |-- Level 1 (0x4c-0x5b): Price = $180     | Volume = 400 lots
+    |-- Level 2 (0x5c-0x6b): Price = EMPTY    | Volume = -
+    \-- Level 3 (0x6c-0x7b): Price = EMPTY    | Volume = -
+----------------------------------------------------------------------------------
+HEX DUMP & BYTE OFFSETS (Wireshark Bytes Pane):
+0000   00 00 00 00 00 00 00 24  00 06 5d a8 9b 06 f2 d5   |.......$..].....|
+0010   00 00 00 01 41 41 50 4c  00 00 00 00 00 00 00 00   |....AAPL........|
+0020   00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   |................|
+0030   00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   |................|
+0040   00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   |................|
+0050   00 00 00 b4 00 00 00 00  00 00 01 90 00 00 00 00   |................|
+0060   00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00   |................|
+0070   00 00 00 00 00 00 00 00  00 00 00 00               |............|
+==================================================================================
+\end{lstlisting}
+
+\section{Conclusion}
+
+The completed prototype fulfills all functional and non-functional requirements specified in the Low Latency Trading Exchange SRS. By isolating reliable TCP ingress from direct worker UDP broadcast dissemination, the design eliminates dispatcher contention. The binary 124-byte wire layout, paired with microsecond timestamping, sequence drop detection, and native Wireshark dissection, provides a production-grade foundation for low-latency network evaluation.
+
+\end{document}

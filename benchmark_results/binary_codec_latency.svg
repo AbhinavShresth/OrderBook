@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="560" viewBox="0 0 960 560">
+<rect width="100%" height="100%" fill="white"/>
+<text x="480.0" y="38" text-anchor="middle" font-family="Arial" font-size="24">binary encode + decode latency distributions</text>
+<line x1="90" y1="85.0" x2="930" y2="85.0" stroke="#dddddd"/>
+<text x="78" y="90.0" text-anchor="end" font-family="Arial" font-size="13">47</text>
+<line x1="90" y1="160.0" x2="930" y2="160.0" stroke="#dddddd"/>
+<text x="78" y="165.0" text-anchor="end" font-family="Arial" font-size="13">38</text>
+<line x1="90" y1="235.0" x2="930" y2="235.0" stroke="#dddddd"/>
+<text x="78" y="240.0" text-anchor="end" font-family="Arial" font-size="13">28</text>
+<line x1="90" y1="310.0" x2="930" y2="310.0" stroke="#dddddd"/>
+<text x="78" y="315.0" text-anchor="end" font-family="Arial" font-size="13">19</text>
+<line x1="90" y1="385.0" x2="930" y2="385.0" stroke="#dddddd"/>
+<text x="78" y="390.0" text-anchor="end" font-family="Arial" font-size="13">9</text>
+<line x1="90" y1="460.0" x2="930" y2="460.0" stroke="#dddddd"/>
+<text x="78" y="465.0" text-anchor="end" font-family="Arial" font-size="13">0</text>
+<rect x="90.00" y="308.40" width="9.80" height="151.60" fill="#2878B5" fill-opacity="0.72"><title>BID: 19 samples</title></rect>
+<rect x="111.00" y="85.00" width="9.80" height="375.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 47 samples</title></rect>
+<rect x="132.00" y="412.13" width="9.80" height="47.87" fill="#2878B5" fill-opacity="0.72"><title>BID: 6 samples</title></rect>
+<rect x="153.00" y="404.15" width="9.80" height="55.85" fill="#2878B5" fill-opacity="0.72"><title>BID: 7 samples</title></rect>
+<rect x="174.00" y="420.11" width="9.80" height="39.89" fill="#2878B5" fill-opacity="0.72"><title>BID: 5 samples</title></rect>
+<rect x="195.00" y="428.09" width="9.80" height="31.91" fill="#2878B5" fill-opacity="0.72"><title>BID: 4 samples</title></rect>
+<rect x="216.00" y="444.04" width="9.80" height="15.96" fill="#2878B5" fill-opacity="0.72"><title>BID: 2 samples</title></rect>
+<rect x="237.00" y="452.02" width="9.80" height="7.98" fill="#2878B5" fill-opacity="0.72"><title>BID: 1 samples</title></rect>
+<rect x="258.00" y="436.06" width="9.80" height="23.94" fill="#2878B5" fill-opacity="0.72"><title>BID: 3 samples</title></rect>
+<rect x="279.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="300.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="321.00" y="436.06" width="9.80" height="23.94" fill="#2878B5" fill-opacity="0.72"><title>BID: 3 samples</title></rect>
+<rect x="342.00" y="444.04" width="9.80" height="15.96" fill="#2878B5" fill-opacity="0.72"><title>BID: 2 samples</title></rect>
+<rect x="363.00" y="452.02" width="9.80" height="7.98" fill="#2878B5" fill-opacity="0.72"><title>BID: 1 samples</title></rect>
+<rect x="384.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="405.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="426.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="447.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="468.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="489.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="510.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="531.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="552.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="573.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="594.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="615.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="636.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="657.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="678.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="699.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="720.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="741.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="762.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="783.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="804.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="825.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="846.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="867.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="888.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="909.00" y="460.00" width="9.80" height="0.00" fill="#2878B5" fill-opacity="0.72"><title>BID: 0 samples</title></rect>
+<rect x="100.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="121.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="142.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="163.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="184.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="205.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="226.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="247.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="268.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="289.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="310.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="331.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="352.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="373.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="394.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="415.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="436.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="457.50" y="436.06" width="9.80" height="23.94" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 3 samples</title></rect>
+<rect x="478.50" y="276.49" width="9.80" height="183.51" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 23 samples</title></rect>
+<rect x="499.50" y="236.60" width="9.80" height="223.40" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 28 samples</title></rect>
+<rect x="520.50" y="396.17" width="9.80" height="63.83" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 8 samples</title></rect>
+<rect x="541.50" y="404.15" width="9.80" height="55.85" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 7 samples</title></rect>
+<rect x="562.50" y="412.13" width="9.80" height="47.87" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 6 samples</title></rect>
+<rect x="583.50" y="428.09" width="9.80" height="31.91" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 4 samples</title></rect>
+<rect x="604.50" y="436.06" width="9.80" height="23.94" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 3 samples</title></rect>
+<rect x="625.50" y="444.04" width="9.80" height="15.96" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 2 samples</title></rect>
+<rect x="646.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="667.50" y="444.04" width="9.80" height="15.96" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 2 samples</title></rect>
+<rect x="688.50" y="428.09" width="9.80" height="31.91" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 4 samples</title></rect>
+<rect x="709.50" y="444.04" width="9.80" height="15.96" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 2 samples</title></rect>
+<rect x="730.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="751.50" y="436.06" width="9.80" height="23.94" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 3 samples</title></rect>
+<rect x="772.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="793.50" y="436.06" width="9.80" height="23.94" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 3 samples</title></rect>
+<rect x="814.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="835.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="856.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="877.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="898.50" y="460.00" width="9.80" height="0.00" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 0 samples</title></rect>
+<rect x="919.50" y="444.04" width="9.80" height="15.96" fill="#E1812C" fill-opacity="0.72"><title>ORDER_ACK_1_trade: 2 samples</title></rect>
+<line x1="90" y1="460" x2="930" y2="460" stroke="#333"/>
+<line x1="90" y1="85" x2="90" y2="460" stroke="#333"/>
+<text x="90.0" y="484" text-anchor="middle" font-family="Arial" font-size="12">1.36e+03</text>
+<text x="258.0" y="484" text-anchor="middle" font-family="Arial" font-size="12">1.71e+03</text>
+<text x="426.0" y="484" text-anchor="middle" font-family="Arial" font-size="12">2.14e+03</text>
+<text x="594.0" y="484" text-anchor="middle" font-family="Arial" font-size="12">2.69e+03</text>
+<text x="762.0" y="484" text-anchor="middle" font-family="Arial" font-size="12">3.37e+03</text>
+<text x="930.0" y="484" text-anchor="middle" font-family="Arial" font-size="12">4.23e+03</text>
+<text x="510.0" y="538" text-anchor="middle" font-family="Arial" font-size="16">Nanoseconds per message</text>
+<text transform="translate(24 272.5) rotate(-90)" text-anchor="middle" font-family="Arial" font-size="16">Samples</text>
+<rect x="90" y="495" width="15" height="15" fill="#2878B5"/>
+<text x="112" y="508" font-family="Arial" font-size="13">BID</text>
+<rect x="240" y="495" width="15" height="15" fill="#E1812C"/>
+<text x="262" y="508" font-family="Arial" font-size="13">ORDER_ACK_1_trade</text>
+<text x="930" y="508" text-anchor="end" font-family="Arial" font-size="11" fill="#555">x-axis ends at p99.5; tail samples are grouped in final bin</text>
+</svg>

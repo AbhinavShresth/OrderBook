@@ -1,0 +1,13 @@
+run_id,section,metric,codec,scenario,unit,samples,min,p50,mean,p99,p99_9,max
+1791920330326999,codec_cpu,encode_decode_ns_per_message,binary,BID,ns,100,1290.513,1523.391,1985.5904600000001,4307.286,5251.117,5251.117
+1791920330326999,codec_cpu,encode_decode_ns_per_message,binary,ORDER_ACK_1_trade,ns,100,2135.116,2346.808,2501.59429,3973.617,4320.781,4320.781
+1791920330326999,codec_cpu,encode_decode_ns_per_message,text_http_json,BID,ns,100,21193.252,24832.684,26467.932960000002,52654.78,57436.888,57436.888
+1791920330326999,codec_cpu,encode_decode_ns_per_message,text_http_json,ORDER_ACK_1_trade,ns,100,45327.085,55103.75,62131.89712,115585.846,117136.234,117136.234
+1791920330326999,dispatch_latency,frame_bytes_to_queue_push_us,binary,in_process,us,50000,0.085,0.123,0.14523686,0.287,0.546,146.295
+1791920330326999,round_trip,request_reply_us,binary,loopback,us,3000,57.223,172.953,185.55688333333333,428.719,833.33,1073.403
+1791920655190335,codec_cpu,encode_decode_ns_per_message,binary,BID,ns,100,1360.412,1419.902,1478.0611900000001,1939.846,1971.552,1971.552
+1791920655190335,codec_cpu,encode_decode_ns_per_message,binary,ORDER_ACK_1_trade,ns,100,2232.205,2389.297,2565.4271400000002,4234.976,4357.651,4357.651
+1791920655190335,codec_cpu,encode_decode_ns_per_message,text_http_json,BID,ns,100,22558.376,23897.58,24332.24938,30043.142,30988.303,30988.303
+1791920655190335,codec_cpu,encode_decode_ns_per_message,text_http_json,ORDER_ACK_1_trade,ns,100,45899.893,49225.517,50068.47667999999,56443.76,91932.602,91932.602
+1791920655190335,dispatch_latency,frame_bytes_to_queue_push_us,binary,in_process,us,50000,0.081,0.094,0.1021,0.135,0.223,103.847
+1791920655190335,round_trip,request_reply_us,binary,loopback,us,3000,45.404,136.096,141.13390533333333,348.071,619.622,835.65
